@@ -20,7 +20,7 @@ header h1 {
 
 .base-timer-path-elapsed {
     stroke-width: 7px;
-    stroke: grey;
+    stroke: lightgrey;
 }
 
 .base-timer-label {
