@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Nyuma</title>
+  <script src="vue.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="assets/css/app.css" />
+  
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="assets/css/app.css" /> -->
+  <meta charset="UTF-8">
+</head>
+
+<body>
+  <div id="app" class="container bg-light">
+    <!-- <header class="nyuma-header">
+      <h1 class="text-center">Nyuma</h1>
+    </header> -->
+    <h1 class="text-center display-1">Nyuma</h1>
+
+    <div class="text-center mt-5 mb-5">
+      Today's exercises:
+    </div>
+
+    <div v-for="n in 5" class="bg-info bg-white nyuma-rounded p-2 m-2 mb-2">
+      Exercise {{n}}<br />
+      {{ exercises[todaysExercises[n-1]].title }}
+    </div>
+    <div class="text-center mt-3 mb-5">
+      Estimated time: {{ estimatedTime }} min
+    </div>
+    <button class="btn btn-primary p-3 btn-block">Start</button>
+    <div>
+      <p>x</p>
+    </div>
+  </div>
+</body>
+
+<script type="text/javascript">
+
+
+  var nyuma = new Vue({
+    el: '#app',
+    data: {
+      sitename: 'Nyuma',
+      today: new Date(),
+      todaysExercises: [],
+      estimatedTime: 30,
+      exercises: [
+        {
+          title: "Supermann",
+          sides: 1
+        },
+        {
+          title: "Käfer auf dem Bauch",
+          sides: 1
+        },
+        {
+          title: "Käfer auf dem Rücken",
+          sides: 1
+        },
+        {
+          title: "Schmetterling",
+          sides: 1
+        },
+        {
+          title: "Ausfallschritt, nach vorne und halten",
+          sides: 2
+        },
+        {
+          title: "Ausfallschritt, zur Seite mit rotierenden Armen",
+          sides: 2
+        },
+        {
+          title: "Kniebeugen",
+          sides: 1
+        },
+        {
+          title: "Liegestütz, Oberkörper auf- und ab",
+          sides: 1
+        },
+        {
+          title: "Liegestütz, mit kleinen Schritten vor- und zurück",
+          sides: 1
+        },
+        {
+          title: "Liegestütz, abwechselnd die Knie anziehen",
+          sides: 1
+        },
+        {
+          title: "Brücke",
+          sides: 1
+        },
+        {
+          title: "Seitstütz, auf Unterarm",
+          sides: 2
+        },
+        {
+          title: "Sit-ups",
+          sides: 1
+        },
+        {
+          title: "Sit-ups seitlich",
+          sides: 1
+        },
+        {
+          title: "Sitzen, Beine abwechselnd ausstrecken",
+          sides: 1
+        },
+        {
+          title: "Gesäß auf Fersen",
+          sides: 1
+        },
+        {
+          title: "Rückenlage, Gesäß abheben und ein Bein anziehen",
+          sides: 2
+        },
+        {
+          title: "Rückenlage, Gesäß abheben und ein Bein ausstrecken",
+          sides: 2
+        },
+        {
+          title: "Seitenlage, Beine abheben und halten",
+          sides: 2
+        },
+        {
+          title: "Seitenlage, Beine abheben und oberes Bein auf und ab",
+          sides: 2
+        },
+        {
+          title: "Seitenlage, Beine abheben und Arme strecken",
+          sides: 2
+        },
+        {
+          title: "Vierfüßlerstand, Arm und Bein diagonal strecken",
+          sides: 1
+        },
+        {
+          title: "Vierfüßlerstand, Arm nach oben rotieren",
+          sides: 2
+        },
+        {
+          title: "Vierfüßlerstand, Knie anheben",
+          sides: 1
+        },
+        {
+          title: "Brücke",
+          sides: 1
+        },
+      ]
+    },
+    created: function () {
+      this.todaysExercises = [];
+      while (this.todaysExercises.length < 10) {
+        const random = Math.floor(Math.random() * this.exercises.length);
+        if (!this.todaysExercises.includes(random))
+          this.todaysExercises.push(random);
+      }
+
+      this.estimatedTime = 60;
+      var estimatedSeconds = 0;
+      for (var i = 0; i < this.todaysExercises.length; ++i)
+        if (this.exercises[this.todaysExercises[i]].sides === 1)
+          estimatedSeconds += (40 + 20);
+        else
+          estimatedSeconds += (60 + 20);
+      console.log(estimatedSeconds);          
+      this.estimatedTime = Math.ceil(3 * estimatedSeconds / 60);
+    },
+  });
+
+</script>
+
+<script src="jquery-3.5.1.slim.min.js"/>
+<script src="popper.min.js"/>
+<script src="bootstrap.min.js"/>
+
+  <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+  integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+  integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script> -->
+
+</body>
+
+</html>
