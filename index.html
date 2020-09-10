@@ -6,7 +6,7 @@
   <script src="vue.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <link rel="stylesheet" href="bootstrap.min.css" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="assets/css/app.css" />
 
   <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -16,13 +16,28 @@
 </head>
 
 <body>
-  <audio id="audiotag1" src="audio/A-Tone-His_Self-1266414414.mp3" preload="auto"></audio>
+
+
 
   <div id="app" class="container bg-light">
 
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            asdlkj
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+        </div>
+      </div>
+    </div>
+
     <h1 class="text-center display-3">Nyuma</h1>
 
-    <div v-if="showWelcome">
+    <div v-if="screen===screens.WELCOME">
       <div class="text-center mt-5 mb-5">
         Today's exercises:
       </div>
@@ -34,17 +49,17 @@
       <div class="text-center mt-3 mb-5">
         Estimated time: {{ estimatedTime }} min
       </div>
-      <button class="btn btn-primary p-3 btn-block" v-on:click="startTraining">Start</button>
+      <button class="btn btn-primary p-3 btn-lg" v-on:click="startTraining">Start</button>
       <div>
         <p>x</p>
       </div>
     </div>
-    <div v-else class="text-center">
-      <div class="text-center mt-5 mb-1 display-5">
+    <div v-if="screen===screens.TRAINING" class="text-center">
+      <div class="text-center mt-5 mb-5 display-5">
         Runde {{ 1 + Math.floor(currentExcercise / 5) }}, Exercise {{ 1 + currentExcercise % 5 }}<br />
         {{ exercises[todaysExercises[currentExcercise % 5]].title }}
       </div>
-      <div class="base-timer text-center justify-content-center mb-2">
+      <div class="base-timer text-center justify-content-center mb-5 mt-5">
         <svg class="base-timer-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" version="1.1">
           <g class="base-timer-circle">
             <circle class="base-timer-path-elapsed" cx="50" cy="50" r="45" />
@@ -60,11 +75,17 @@
 
       </div>
 
-      <button class="btn btn-primary p-3 btn-block" v-on:click="startTimer">Start timer</button>
-      <button class="btn btn-primary p-3 btn-block" v-on:click="nextExercise">Next</button>
-      <button class="btn btn-primary p-3 btn-block" v-on:click="stopTraining">Pause</button>
+      <!-- <button class="btn btn-primary mt-5 p-3 btn-lg" data-toggle="modal" data-target="#exampleModal" v-on:click="pauseTraining">{{timerInterval != null ? 'Pause' : 'Weitermachen'}}</button> -->
+      <!-- <button class="btn btn-primary mt-5 p-3 btn-lg" data-toggle="modal" data-target="#exampleModal">Bla</button> -->
+
 
     </div>
+
+    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#exampleModal">
+      Launch demo modal
+    </button>
+
+
   </div>
 </body>
 
@@ -90,6 +111,11 @@
   msgLos.lang = 'de';
 
 
+  var screens = {
+    WELCOME: 'welcome-screen',
+    TRAINING: 'training-screen',
+  };
+
   const phases = {
     WARMUP: 'warmup',
     EXERCISE: 'exercise',
@@ -101,16 +127,20 @@
     el: '#app',
     data: {
       sitename: 'Nyuma',
+      screens,
+      screen: screens.WELCOME,
+      phases,
+      phase: phases.WARMUP,
+      round: 0,
+      execise: 0,
       today: new Date(),
       todaysExercises: [],
       estimatedTime: 30,
-      showWelcome: false,
       currentExcercise: 0,
       timeTotal: 10,
       timeLeft: 0,
       timerInterval: null,
       timePassed: 0,
-      phase: phases.WARMUP,
       arcSpec: "M 50 50 m 0 -45 A 45 45 0 1 0 95 50",
       exercises: [
         {
@@ -217,18 +247,28 @@
     },
     methods: {
       startTraining() {
-        this.showWelcome = false;
-        this.phase = phase.WARMUP;
-
+        this.screen = screens.TRAINING;
+        this.round = 0;
+        this.exercise = 0;
+        this.phase = phases.WARMUP;
+        this.resetTimer();
+        this.startTimer();
+      },
+      pauseTraining() {
+        this.screen = screens.TRAINING;
+        if (this.timerInterval == null)
+          this.startTimer();
+        else
+          this.stopTimer();
       },
       stopTraining() {
-        this.showWelcome = true;
+        this.screen = screens.WELCOME;
+        this.stopTimer();
       },
       nextExercise() {
         // document.getElementById('audiotag1').play();
         //beep();
 
-        this.showWelcome = false;
         this.currentExcercise += 1;
 
         var msg = new SpeechSynthesisUtterance(this.exercises[this.todaysExercises[this.currentExcercise % 5]].title);
@@ -240,9 +280,14 @@
           this.showWelcome = true;
         }
       },
-      startTimer() {
+      resetTimer() {
         this.timeLeft = this.timeTotal;
         this.timePassed = 0;
+      },
+      startTimer() {
+        if (this.timerInterval != null)
+          return;
+
         this.timerInterval = setInterval(() => {
           this.timePassed += 1;
           this.timeLeft -= 1;
@@ -265,6 +310,10 @@
             clearInterval(this.timerInterval);
           }
         }, 1000);
+      },
+      stopTimer() {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
       },
     },
     filters: {
@@ -321,17 +370,24 @@
 
 </script>
 
-<script src="jquery-3.5.1.slim.min.js" />
-<script src="popper.min.js"/>
-<script src="bootstrap.min.js"/>
+<script src="js/jquery-3.5.1.slim.min.js"></script>
 
-  <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-  integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-  integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-  integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="js/popper.min.js"></script>
+
+<script src="js/bootstrap.min.js"></script>
+
+
+
+<!--
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 -->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+  integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script> -->
+
+<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+  integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script> -->
+
 
 </body>
 
