@@ -19,45 +19,54 @@
 
 
 
-  <div id="app" class="container bg-light">
+  <div id="app" class="container bg-light p-5">
+
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog">
+    <div class="modal fade" id="pauseModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            asdlkj
+            <h5 class="modal-title">Pause</h5>
+            <button type="button" class="close" data-dismiss="modal" v-on:click="pauseTraining">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <div class="modal-body">
-            ...
+          <!-- <div class="modal-body">
+              Übung abbrechen?
+          </div> -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="stopTraining">Training
+              abbrechen</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="pauseTraining">Training
+              fortsetzen</button>
           </div>
         </div>
       </div>
     </div>
 
     <h1 class="text-center display-3">Nyuma</h1>
+    <h4 class="text-center">Rückentraining ohne Brimborium</h4>
 
     <div v-if="screen===screens.WELCOME">
-      <div class="text-center mt-5 mb-5">
-        Today's exercises:
+      <div class="text-center mt-5 mb-5 font-weight-bold">
+        Übungen für heute:
       </div>
 
       <div v-for="n in 5" class="bg-info bg-white nyuma-rounded p-2 m-2 mb-2">
-        Exercise {{n}}<br />
+        <span class="font-weight-bold">Übung {{n}}</span><br />
         {{ exercises[todaysExercises[n-1]].title }}
       </div>
       <div class="text-center mt-3 mb-5">
-        Estimated time: {{ estimatedTime }} min
+        Trainingsdauer: {{ estimatedTime }} min
       </div>
-      <button class="btn btn-primary p-3 btn-lg" v-on:click="startTraining">Start</button>
-      <div>
-        <p>x</p>
-      </div>
+      <button class="btn btn-primary p-3 btn-block" v-on:click="startTraining">Start</button>
     </div>
     <div v-if="screen===screens.TRAINING" class="text-center">
       <div class="text-center mt-5 mb-5 display-5">
-        Runde {{ 1 + Math.floor(currentExcercise / 5) }}, Exercise {{ 1 + currentExcercise % 5 }}<br />
-        {{ exercises[todaysExercises[currentExcercise % 5]].title }}
+        <p class="font-weight-bold">Runde {{ round+1 }}, Übung {{ exercise+1 }} </p>
+        <p>{{ exercises[todaysExercises[exercise]].title }}</p>
+        <p>{{ phase.name }}</p>
       </div>
       <div class="base-timer text-center justify-content-center mb-5 mt-5">
         <svg class="base-timer-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -75,15 +84,12 @@
 
       </div>
 
-      <!-- <button class="btn btn-primary mt-5 p-3 btn-lg" data-toggle="modal" data-target="#exampleModal" v-on:click="pauseTraining">{{timerInterval != null ? 'Pause' : 'Weitermachen'}}</button> -->
-      <!-- <button class="btn btn-primary mt-5 p-3 btn-lg" data-toggle="modal" data-target="#exampleModal">Bla</button> -->
+      <button type="button" class="btn btn-primary p-3 btn-block" data-toggle="modal" data-target="#pauseModal"
+        v-on:click="pauseTraining">Pause</button>
 
 
     </div>
 
-    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#exampleModal">
-      Launch demo modal
-    </button>
 
 
   </div>
@@ -98,6 +104,9 @@
   var msgBereit = new SpeechSynthesisUtterance('mach dich bereit für die nächste übung');
   msgBereit.lang = 'de';
 
+  var msgBereitFuerErsteUebung = new SpeechSynthesisUtterance('mach dich bereit für die erste übung');
+  msgBereitFuerErsteUebung.lang = 'de';
+
   var msgDrei = new SpeechSynthesisUtterance('drei');
   msgDrei.lang = 'de';
 
@@ -110,6 +119,24 @@
   var msgLos = new SpeechSynthesisUtterance('los');
   msgLos.lang = 'de';
 
+  var msgNoch30Sekunden = new SpeechSynthesisUtterance('noch 30 sekunden');
+  msgNoch30Sekunden.lang = 'de';
+
+  var msgNoch20Sekunden = new SpeechSynthesisUtterance('noch 20 sekunden');
+  msgNoch20Sekunden.lang = 'de';
+
+  var msgNoch10Sekunden = new SpeechSynthesisUtterance('noch 10 sekunden');
+  msgNoch10Sekunden.lang = 'de';
+
+  var msgBeendeDieUebeungIn = new SpeechSynthesisUtterance('beende die übung in');
+  msgBeendeDieUebeungIn.lang = 'de';
+
+  var msgbeginneDieUebeungIn = new SpeechSynthesisUtterance('beginne die übung in');
+  msgbeginneDieUebeungIn.lang = 'de';
+
+  var msgZeitFuerEineKurzePause = new SpeechSynthesisUtterance('zeit für eine kurze pause');
+  msgZeitFuerEineKurzePause.lang = 'de';
+
 
   var screens = {
     WELCOME: 'welcome-screen',
@@ -117,11 +144,32 @@
   };
 
   const phases = {
-    WARMUP: 'warmup',
-    EXERCISE: 'exercise',
-    REST: 'rest',
-    COOLDOWN: 'cooldown'
+    INIT: { name: 'init', length: 0 },
+    BEFORE_TRAINING: { name: 'before-training', length: 10 },
+    EXERCISE: { name: 'exercise', length: 40 },
+    EXERCISE_SIDE_1: { name: 'exercise-side-1', length: 30 },
+    EXERCISE_SIDE_2: { name: 'exercise-side-2', length: 30 },
+    SWITCH_SIDES: { name: 'switch-sides', length: 5 },
+    BETWEEN_EXERCISE: { name: 'between-exercises', length: 20 },
+    BETWEEN_ROUND: { name: 'between-rounds', length: 30 },
+    AFTER_TRAINING: { name: 'after-training', length: 10 },
   };
+
+  // const phases = {
+  //   WARMUP: 'warmup',
+  //   INIT: 'init',
+  //   BEFORE_TRAINING: 'pre-training',
+  //   EXERCISE: 'exercise',
+  //   EXERCISE_SIDE_1: 'exercise-side-1',
+  //   EXERCISE_SIDE_2: 'exercise-side-2',
+  //   SWITCH_SIDES: 'switch-sides',
+  //   BETWEEN_EXERCISE: 'between-exercise',
+  //   BETWEEN_ROUND: 'between-round',
+  //   AFTER_TRAINING: 'after-training',
+  //   REST: 'rest',
+  //   COOLDOWN: 'cooldown'
+  // };
+
 
   var nyuma = new Vue({
     el: '#app',
@@ -132,11 +180,10 @@
       phases,
       phase: phases.WARMUP,
       round: 0,
-      execise: 0,
+      exercise: 0,
       today: new Date(),
       todaysExercises: [],
       estimatedTime: 30,
-      currentExcercise: 0,
       timeTotal: 10,
       timeLeft: 0,
       timerInterval: null,
@@ -149,7 +196,7 @@
         },
         {
           title: "Käfer auf dem Bauch",
-          sides: 1
+          sides: 2
         },
         {
           title: "Käfer auf dem Rücken",
@@ -250,8 +297,8 @@
         this.screen = screens.TRAINING;
         this.round = 0;
         this.exercise = 0;
-        this.phase = phases.WARMUP;
-        this.resetTimer();
+        this.phase = phases.BEFORE_TRAINING;
+        this.enter(phases.BEFORE_TRAINING);
         this.startTimer();
       },
       pauseTraining() {
@@ -265,50 +312,115 @@
         this.screen = screens.WELCOME;
         this.stopTimer();
       },
-      nextExercise() {
-        // document.getElementById('audiotag1').play();
-        //beep();
+      enter(phase) {
+        this.phase = phase;
+        this.timeTotal = phase.length;
+        this.timeLeft = phase.length;
+        this.timePassed = 0;
+      },
+      audio() {
+        var phase = this.phase;
+        var timeLeft = this.timeLeft;
+        var timePassed = this.timePassed;
+        var synth = window.speechSynthesis;
 
-        this.currentExcercise += 1;
+        switch (this.phase) {
+          case phases.EXERCISE:
+            if (timeLeft == 31)
+              synth.speak(msgNoch30Sekunden);
+            if (timeLeft == 21)
+              synth.speak(msgNoch20Sekunden);
+            if (timeLeft == 11)
+              synth.speak(msgNoch10Sekunden);
+            if (timeLeft == 5)
+              synth.speak(msgBeendeDieUebeungIn);
+            break;
+          case phases.BETWEEN_EXERCISE:
+            if (timePassed == 1)
+              synth.speak(msgZeitFuerEineKurzePause);
+            if (timeLeft == 5)
+              synth.speak(msgbeginneDieUebeungIn);
 
-        var msg = new SpeechSynthesisUtterance(this.exercises[this.todaysExercises[this.currentExcercise % 5]].title);
-        msg.lang = 'de';
-        window.speechSynthesis.speak(msg);
+            if (timeLeft == 10) {
+              var msg = new SpeechSynthesisUtterance(this.exercises[this.todaysExercises[this.exercise]].title);
+              msg.lang = 'de';
+              synth.speak(msg);
+            }
+            break;
+          case phases.BETWEEN_ROUND:
+            if (timePassed == 1)
+              synth.speak(msgZeitFuerEineKurzePause);
+            if (timeLeft == 5)
+              synth.speak(msgbeginneDieUebeungIn);
+            break;
 
-        if (this.currentExcercise > 24) {
-          this.currentExcercise = 0;
-          this.showWelcome = true;
+        }
+
+        if (timeLeft == 4) {
+          synth.speak(msgDrei);
+        }
+        if (timeLeft == 3) {
+          synth.speak(msgZwei);
+        }
+        if (timeLeft == 2) {
+          synth.speak(msgEins);
         }
       },
-      resetTimer() {
-        this.timeLeft = this.timeTotal;
-        this.timePassed = 0;
+      tick() {
+        this.timePassed += 1;
+        this.timeLeft -= 1;
+
+        if (this.timeLeft == -1) {
+          switch (this.phase) {
+            case phases.INIT:
+              this.enter(phases.BEFORE_TRAINING);
+              break;
+            case phases.BEFORE_TRAINING:
+              this.enter(phases.EXERCISE);
+              break;
+            case phases.EXERCISE:
+            case phases.EXERCISE_SIDE_2:
+              this.enter(phases.BETWEEN_EXERCISE);
+
+              this.exercise += 1;
+              if (this.exercise > 4) {
+                this.enter(phases.BETWEEN_ROUND);
+                this.exercise = 0;
+                this.round += 1;
+              }
+
+              if (this.round > 2) {
+                this.enter(phases.AFTER_TRAINING);
+              }
+              break;
+            case phases.EXERCISE_SIDE_1:
+              this.enter(phases.SWITCH_SIDES);
+              break;
+            case phases.SWITCH_SIDES:
+            this.enter(phases.EXERCISE_SIDE_2);
+              break;
+            case phases.BETWEEN_EXERCISE:
+            case phases.BETWEEN_ROUND:
+              if (this.exercises[this.todaysExercises[this.exercise]].sides == 1)
+                this.enter(phases.EXERCISE);
+              else
+                this.enter(phases.EXERCISE_SIDE_1);
+              break;
+            case phases.AFTER_TRAINING:
+              this.timeTotal = 40;
+              clearInterval(this.timerInterval);
+              break;
+          }
+        }
+
+        this.audio();
       },
       startTimer() {
         if (this.timerInterval != null)
           return;
 
         this.timerInterval = setInterval(() => {
-          this.timePassed += 1;
-          this.timeLeft -= 1;
-          if (this.timeLeft == 6) {
-            window.speechSynthesis.speak(msgBereit);
-          }
-          if (this.timeLeft == 4) {
-            window.speechSynthesis.speak(msgDrei);
-          }
-          if (this.timeLeft == 3) {
-            window.speechSynthesis.speak(msgZwei);
-          }
-          if (this.timeLeft == 2) {
-            window.speechSynthesis.speak(msgEins);
-          }
-          if (this.timeLeft == 1) {
-            window.speechSynthesis.speak(msgLos);
-          }
-          if (this.timeLeft == 0) {
-            clearInterval(this.timerInterval);
-          }
+          this.tick();
         }, 1000);
       },
       stopTimer() {
@@ -346,6 +458,9 @@
           arcSpec = "M 50 5 A 45 45 0 1 0 " + (50 + s) + " " + (50 - c);
 
         return arcSpec;
+      },
+      currentExercise() {
+        return this.exercises[this.todaysExercises[this.exercise]];
       }
     },
     created: function () {
@@ -355,7 +470,7 @@
         if (!this.todaysExercises.includes(random))
           this.todaysExercises.push(random);
       }
-
+      
       this.estimatedTime = 60;
       var estimatedSeconds = 0;
       for (var i = 0; i < this.todaysExercises.length; ++i)
