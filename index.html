@@ -104,7 +104,7 @@
   audioContext = new AudioContext();
 
   const audioFileUrls = [
-    'audio/beginne-die-uebung-in.mp3',
+    'audio/beginne-die-uebung-in.mp32',
     'audio/beende-die-uebeung-in.mp3',
     'audio/noch-10-sekunden.mp3',
     'audio/noch-20-sekunden.mp3',
@@ -128,7 +128,7 @@
       request.onload = function () {
         audioContext.decodeAudioData(request.response, function (buffer) {
           audioBuffers[url] = buffer;
-        }, null);
+        }, function (msg) { console.log("error: " + msg); });
       }
       request.send();
     });
