@@ -9,18 +9,15 @@
   <link rel="stylesheet" href="css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="assets/css/app.css" />
 
-  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="assets/css/app.css" /> -->
+  <script src="exercises.js"></script>
+  <script src="audiofiles.js"></script>
+
   <meta charset="UTF-8">
 </head>
 
 <body>
 
-
-
   <div id="app" class="container bg-light p-5">
-
 
     <!-- Modal -->
     <div class="modal fade" id="pauseModal" tabindex="-1" role="dialog">
@@ -86,14 +83,8 @@
 
       <button type="button" class="btn btn-primary p-3 btn-block" data-toggle="modal" data-target="#pauseModal"
         v-on:click="pauseTraining">Pause</button>
-
-
     </div>
-
-
-
   </div>
-
 </body>
 
 <script type="text/javascript">
@@ -101,24 +92,10 @@
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
   audioContext = new AudioContext();
 
-  const audioFileUrls = [
-    'audio/beginne-die-uebung-in.mp3',
-    'audio/beende-die-uebeung-in.mp3',
-    'audio/noch-10-sekunden.mp3',
-    'audio/noch-20-sekunden.mp3',
-    'audio/noch-30-sekunden.mp3',
-    'audio/noch-40-sekunden.mp3',
-    'audio/und-los.mp3',
-    'audio/wechsle-die-seite-und-beginne-die-uebung-in.mp3',
-    'audio/zeit-fuer-eine-kurze-pause.mp3',
-    'audio/mache-dich-bereit-fuer-die-naechste-uebeungt.mp3',
-    'audio/drei.mp3',
-    'audio/zwei.mp3',
-    'audio/eins.mp3'];
   const audioBuffers = new Map();
 
   function loadAudioFiles() {
-    audioFileUrls.forEach(url => {
+    audioFiles.forEach(url => {
       console.log("loading " + url);
       var request = new XMLHttpRequest();
       request.open('GET', url, true);
@@ -181,108 +158,7 @@
       timerInterval: null,
       timePassed: 0,
       arcSpec: "M 50 50 m 0 -45 A 45 45 0 1 0 95 50",
-      exercises: [
-        {
-          title: "Supermann",
-          sides: 1
-        },
-        {
-          title: "Käfer auf dem Bauch",
-          sides: 2
-        },
-        {
-          title: "Käfer auf dem Rücken",
-          sides: 1
-        },
-        {
-          title: "Schmetterling",
-          sides: 1
-        },
-        {
-          title: "Ausfallschritt, nach vorne und halten",
-          sides: 2
-        },
-        {
-          title: "Ausfallschritt, zur Seite mit rotierenden Armen",
-          sides: 2
-        },
-        {
-          title: "Kniebeugen",
-          sides: 1
-        },
-        {
-          title: "Liegestütz, Oberkörper auf- und ab",
-          sides: 1
-        },
-        {
-          title: "Liegestütz, mit kleinen Schritten vor- und zurück",
-          sides: 1
-        },
-        {
-          title: "Liegestütz, abwechselnd die Knie anziehen",
-          sides: 1
-        },
-        {
-          title: "Brücke",
-          sides: 1
-        },
-        {
-          title: "Seitstütz, auf Unterarm",
-          sides: 2
-        },
-        {
-          title: "Sit-ups",
-          sides: 1
-        },
-        {
-          title: "Sit-ups seitlich",
-          sides: 1
-        },
-        {
-          title: "Sitzen, Beine abwechselnd ausstrecken",
-          sides: 1
-        },
-        {
-          title: "Gesäß auf Fersen",
-          sides: 1
-        },
-        {
-          title: "Rückenlage, Gesäß abheben und ein Bein anziehen",
-          sides: 2
-        },
-        {
-          title: "Rückenlage, Gesäß abheben und ein Bein ausstrecken",
-          sides: 2
-        },
-        {
-          title: "Seitenlage, Beine abheben und halten",
-          sides: 2
-        },
-        {
-          title: "Seitenlage, Beine abheben und oberes Bein auf und ab",
-          sides: 2
-        },
-        {
-          title: "Seitenlage, Beine abheben und Arme strecken",
-          sides: 2
-        },
-        {
-          title: "Vierfüßlerstand, Arm und Bein diagonal strecken",
-          sides: 1
-        },
-        {
-          title: "Vierfüßlerstand, Arm nach oben rotieren",
-          sides: 2
-        },
-        {
-          title: "Vierfüßlerstand, Knie anheben",
-          sides: 1
-        },
-        {
-          title: "Brücke",
-          sides: 1
-        },
-      ]
+      exercises,
     },
     methods: {
       startTraining() {
