@@ -43,7 +43,7 @@
     </div>
 
     <h1 class="text-center display-5">Nyuma</h1>
-    <h4 class="text-center">Rückentraining ohne Brimborium</h4>
+    <h4 class="text-center">Rückentraining ohne Brimborium 1</h4>
 
     <div v-if="screen===screens.WELCOME">
       <div class="text-center mt-5 mb-5 font-weight-bold">
@@ -162,6 +162,7 @@
     },
     methods: {
       startTraining() {
+        audioContext.resume();
         this.screen = screens.TRAINING;
         this.round = 0;
         this.exercise = 0;
