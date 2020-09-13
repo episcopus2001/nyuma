@@ -17,7 +17,7 @@
 
 <body>
 
-  <div id="app" class="container bg-light p-5">
+  <div id="app" class="container bg-light p-2">
 
     <!-- Modal -->
     <div class="modal fade" id="pauseModal" tabindex="-1" role="dialog">
@@ -42,11 +42,23 @@
       </div>
     </div>
 
-    <h1 class="text-center display-5">Nyuma</h1>
-    <h4 class="text-center">Rückentraining ohne Brimborium 1</h4>
+    <nav class="navbar navbar-expand-lg">
+      <a class="navbar-brand" href="#">Nyuma</a>
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Heute</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Übungen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Einstellungen</a>
+        </li>
+      </ul>
+    </nav>
 
     <div v-if="screen===screens.WELCOME">
-      <div class="text-center mt-5 mb-5 font-weight-bold">
+      <div class="text-center mt-4 mb-4">
         Übungen für heute:
       </div>
 
@@ -81,7 +93,7 @@
 
       </div>
 
-      <button type="button" class="btn btn-primary p-3 btn-block" data-toggle="modal" data-target="#pauseModal"
+      <button type="button" class="btn btn-primary p-3" data-toggle="modal" data-target="#pauseModal"
         v-on:click="pauseTraining">Pause</button>
     </div>
   </div>
@@ -200,19 +212,19 @@
 
         switch (this.phase) {
           case phases.BEFORE_TRAINING:
-            if (timeLeft == 8)
-              playAudio('audio/mache-dich-bereit-fuer-die-naechste-uebeungt.mp3');
+            if (timeLeft == 9)
+              playAudio('audio/mach-dich-bereit-fuer-die-erste-uebung.mp3');
             if (timeLeft == 5)
               playAudio('audio/beginne-die-uebung-in.mp3');
-            if (timeLeft == 0)
-              playAudio('audio/und-los.mp3');
             break;
           case phases.EXERCISE:
-            if (timeLeft == 31)
+            if (timePassed == 0)
+              playAudio('audio/und-los.mp3');
+            if (timeLeft == 30)
               playAudio('audio/noch-30-sekunden.mp3');
-            if (timeLeft == 21)
+            if (timeLeft == 20)
               playAudio('audio/noch-20-sekunden.mp3');
-            if (timeLeft == 11)
+            if (timeLeft == 10)
               playAudio('audio/noch-10-sekunden.mp3');
             if (timeLeft == 5)
               playAudio('audio/beende-die-uebeung-in.mp3');
@@ -220,8 +232,8 @@
               playAudio('audio/zeit-fuer-eine-kurze-pause.mp3');
             break;
           case phases.BETWEEN_EXERCISE:
-            if (timeLeft == 8)
-              playAudio('audio/mache-dich-bereit-fuer-die-naechste-uebeungt.mp3');
+            if (timeLeft == 9)
+              playAudio('audio/mach-dich-bereit-fuer-die-naechste-uebung.mp3');
             if (timeLeft == 5)
               playAudio('audio/beginne-die-uebung-in.mp3');
             if (timeLeft == 0)
